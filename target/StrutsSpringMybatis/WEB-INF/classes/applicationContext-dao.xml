@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.0.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+    <!-- 引入数据库连接池属性设置 properties 文件 -->
+    <context:property-placeholder location="classpath:source.properties" />
+
+    <!-- 注入数据库连接池 -->
+    <bean id="ds" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClasss}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="${jdbc.initialSize}"></property>
+        <!-- 连接池最大数量 -->
+        <property name="maxActive" value="${jdbc.maxActive}"></property>
+        <!-- 连接池最大空闲 -->
+        <property name="maxIdle" value="${jdbc.maxIdle}"></property>
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="${jdbc.minIdle}"></property>
+        <!-- 获取连接最大等待时间 -->
+        <property name="maxWait" value="${jdbc.maxWait}"></property>
+    </bean>
+
+    <!-- 注入 SqlSessionFactory 对象 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 引入数据库连接池 -->
+        <property name="dataSource" ref="ds"/>
+        <!-- 引入 Mybatis 别名配置文件 -->
+        <property name="configLocation" value="classpath:mybatisConfig.xml"></property>
+        <!-- 引入实体且使用别名 -->
+        <!--<property name="typeAliasesPackage" value="org.czy.**.entity"/>-->
+        <!--<property name="typeAliasesPackage" value="org.czy.moduleOne.entity"/>-->
+        <!-- 引入 Mybatis 映射文件 -->
+        <property name="mapperLocations" value="classpath*:mapping/**/*.xml"/>
+        <!--<property name="mapperLocations" value="classpath:mapping/moduleOne/heroMapper.xml"/>-->
+    </bean>
+
+    <!-- 注入映射器接口 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 引入 sqlSessionFactory -->
+        <!-- 当存在且仅存一个数据源配置 可以默认不写 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!-- 指明映射器接口位置 -->
+        <property name="basePackage" value="org.czy.*.dao"/>
+        <!--<property name="basePackage" value="org.czy.moduleOne.dao"/>-->
+    </bean>
+
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 引入数据库连接池 -->
+        <property name="dataSource" ref="ds"/>
+    </bean>
+
+    <!--  配置事务通知-->
+    <tx:advice id="txadvice" transaction-manager="transactionManager" >
+        <tx:attributes>
+            <!--
+
+            原子性（Atomicity）
+                事务是数据库的逻辑工作单位,事务中包括的诸操作要么全做,要么全不做.
+
+            一致性（Consistency）
+                事务执行的结果必须是使数据库从一个一致性状态变到另一个一致性状态.一致性与原子性是密切
+                相关的,也就是说一个事务执行之前和执行之后都必须处于一致性状态.
+                拿转账来说，假设用户A和用户B两者的钱加起来一共是5000，那么不管A和B之间如何转账，转几次
+                账，事务结束后两个用户的钱相加起来应该还得是5000，这就是事务的一致性。
+
+            隔离性（Isolation）
+                一个事务的执行不能被其他事务干扰.
+
+            持久性（Durability）
+                持久性是指一个事务一旦被提交了,那么对数据库中的数据的改变就是永久性的.
+
+
+            以方法为单位
+            isolation:隔离级别
+            read-only:只读属性
+            propagation:传播行为
+            -->
+            <!-- 两套增删改查(8种) -->
+            <tx:method name="save*" isolation="DEFAULT" read-only="false" propagation="REQUIRED"/>
+            <tx:method name="persist*" isolation="DEFAULT" read-only="false" propagation="REQUIRED"/>
+            <tx:method name="delete*" isolation="DEFAULT" read-only="false" propagation="REQUIRED"/>
+            <tx:method name="remove*" isolation="DEFAULT" read-only="false" propagation="REQUIRED"/>
+            <tx:method name="update*" isolation="DEFAULT" read-only="false" propagation="REQUIRED"/>
+            <tx:method name="modify*" isolation="DEFAULT" read-only="false" propagation="REQUIRED"/>
+            <tx:method name="get*" isolation="DEFAULT" read-only="true" propagation="REQUIRED"/>
+            <tx:method name="find*" isolation="DEFAULT" read-only="true" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置织入 -->
+    <aop:config>
+        <!-- 配置切点表达式 -->
+        <aop:pointcut id="pointcut" expression="execution(* org.czy.*.serviceImpl.*.*(..))" />
+        <!--
+            配置切面:切点+通知
+            pointcut-ref：切点名称
+            advice-ref：通知名称
+         -->
+        <aop:advisor pointcut-ref="pointcut" advice-ref="txadvice" />
+    </aop:config>
+
+    <!-- 开启 @Transactional 注解管理 aop 事务 -->
+    <!--<tx:annotation-driven transaction-manager="transactionManager"/>-->
+
+</beans>

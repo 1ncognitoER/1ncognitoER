@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.czy.moduleOne.dao.CampDao">
+
+    <resultMap id="AllInfoResultMap" type="Camp">
+        <id column="t_campid" property="campid" />
+        <result column="t_league" property="league" />
+        <!-- property:实体类中的属性名  ofType:该集合中元素的数据类型 -->
+        <collection property="heroes" ofType="Hero">
+            <result column="t_heroid" property="heroid" />
+            <result column="t_name" property="name" />
+            <result column="t_role" property="role" />
+            <result column="t_campcode" property="campcode" />
+        </collection>
+    </resultMap>
+
+    <select id="getAllCamp" resultMap="AllInfoResultMap">
+        <![CDATA[
+        SELECT  A.T_CAMPID, A.T_LEAGUE, B.T_HEROID, B.T_NAME, B.T_ROLE, B.T_CAMPCODE
+        FROM LOL_CAMP A LEFT JOIN LOL_HERO B
+        ON A.T_CAMPID = B.T_CAMPCODE
+		]]>
+    </select>
+
+</mapper>

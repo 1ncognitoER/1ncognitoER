@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+        "http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+    <!-- 设置编码格式 -->
+    <constant name="struts.i18n.encoding" value="UTF-8"/>
+    <constant name="struts.locale" value="zh_CN" />
+    <!-- 打开开发者模式 -->
+    <constant name="struts.devMode" value="true"/>
+    <!-- 改变配置后，自动加载  前提需要将开发模式设置为true -->
+    <constant name="struts.configuration.xml.reload" value="true"/>
+    <!-- 设置浏览器是否缓存静态内容，开发阶段应关闭，生产阶段打开，默认为打开 -->
+    <constant name="struts.serve.static.browserCache" value="false" />
+    <!-- 动态方法请求设置 -->
+    <constant name="struts.enable.DynamicMethodInvocation" value="true" />
+
+    <!-- struts2默认上传文件大小为2M，扩展上传文件大小至50M -->
+    <constant name="struts.multipart.maxSize" value="52428800" />
+
+    <!-- struts2上传路径 -->
+    <constant name="struts.multipart.saveDir" value="E:/IdeaProjects/StrutsSpringMybatis/src/main/webapp/upload" />
+
+    <constant name="struts.ui.theme" value="simple" />
+    <constant name="struts.ui.templateDir" value="template" />
+    <constant name="struts.ui.templateSuffix" value="ftl" />
+
+    <!-- Action实例化托管 -->
+    <constant name="struts.objectFactory" value="spring" />
+
+    <!-- 自定义扩展名 -->
+    <constant name="struts.action.extension" value="action,jspx,do"/>
+
+    <!-- 引入各个子配置文件 -->
+    <include file="struts/**/struts-*.xml"/>
+    <!--<include file="struts/moduleOne/struts-modulone.xml"/>-->
+
+</struts>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.czy.moduleOne.dao.HeroDao">
+    
+    <resultMap id="HeroBaseResultMap" type="Hero">
+        <!-- column:数据库中的列名，property：实体类中的属性名 id表示主键 result表示其他字段 -->
+        <id column="t_heroid" property="heroid" />
+        <result column="t_name" property="name" />
+        <result column="t_role" property="role" />
+        <result column="t_campcode" property="campcode" />
+    </resultMap>
+
+    <select id="getHeros" resultMap="HeroBaseResultMap">
+        <![CDATA[
+		SELECT * FROM LOL_HERO
+		]]>
+    </select>
+
+    <resultMap id="HeroAndCampResultMap" type="Hero">
+        <id column="t_heroid" property="heroid" />
+        <result column="t_name" property="name" />
+        <result column="t_role" property="role" />
+        <!-- property:类中属性的名字 javaType：关联的数据类型 -->
+        <association property="camp" javaType="Camp">
+            <result column="t_league" property="league" />
+        </association>
+    </resultMap>
+
+    <select id="getAll" resultMap="HeroAndCampResultMap">
+        <![CDATA[
+        SELECT A.T_HEROID, A.T_NAME, A.T_ROLE, B.T_LEAGUE
+        FROM LOL_HERO A, LOL_CAMP B
+        WHERE A.T_CAMPCODE = B.T_CAMPID
+		]]>
+    </select>
+
+</mapper>
